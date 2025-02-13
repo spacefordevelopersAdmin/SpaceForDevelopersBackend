@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  backend:
+    build: 
+      context: ./server  # Specify the path where the Dockerfile is located
+    ports:
+      - "8000:5000"
+    environment:
+      PORT: 5000
+      MONGO_URI: mongodb://mongo_db:27017/SPACEFORDEV
+    depends_on:
+      - mongo_db
+    volumes:
+      - ./server:/app  # Mount server folder
+      - /app/node_modules  # Prevent overwriting node_modules
+
+  mongo_db:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_db:/data/db
+
+volumes:
+  mongo_db: {}
