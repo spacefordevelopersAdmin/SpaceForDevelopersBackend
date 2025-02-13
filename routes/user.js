@@ -7,8 +7,10 @@ const { GoogleSpreadsheet } = require("google-spreadsheet");
 const { JWT, GoogleAuth } = require("google-auth-library");
 const { google } = require('googleapis');
 const fs=require('fs')
-const credentials = JSON.parse(fs.readFileSync("service-account.json", "utf8"));
-const SPREADSHEET_ID = "1iRdltx4laImjRwQi3l9TfL6VSpxb_1fuRuQ4d4RWxY4"; // Replace with your actual Sheet ID
+const credentials = JSON.parse(Buffer.from(process.env.GOOGLE_CREDENTIALS, "base64").toString("utf8"));
+
+// const credentials = JSON.parse(fs.readFileSync("service-account.json", "utf8")); //run this in dev mode
+
 const auth = new GoogleAuth({
   credentials,
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
@@ -24,7 +26,7 @@ async function writeToGoogleSheets(name, email, message) {
             scopes: ["https://www.googleapis.com/auth/spreadsheets"],
         });
   
-        const doc = new GoogleSpreadsheet(SPREADSHEET_ID, auth);
+        const doc = new GoogleSpreadsheet(process.env.SPREADSHEET_ID, auth);
         await doc.loadInfo();
         const sheet = doc.sheetsByIndex[0]; // First sheet
   
