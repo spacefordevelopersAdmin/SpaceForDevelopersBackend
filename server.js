@@ -2,11 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const userRouter=require("./routes/user")
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const app=express();
 const PORT=9000;
-
 mongoose.connect(process.env.MONGO_URI).then(()=>console.log("DB connected")).catch((err)=>console.log(err));
 const allowedOrigins = [
   "http://localhost:3000",
@@ -14,6 +14,8 @@ const allowedOrigins = [
   "https://spacefordevelopersbackend-production.up.railway.app"
 ];
 
+
+app.use(cookieParser());
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {

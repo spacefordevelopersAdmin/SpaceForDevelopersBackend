@@ -10,10 +10,6 @@ const {sendEmail} =require('../Util/Email.js')
 router.post("/signup", async (req, res) => {
     const formData = req.body;
     const {username,email,password}=formData;    
-    console.log(formData);
-    console.log(username);
-    console.log(email);
-    console.log(password);
     
     
     
@@ -75,11 +71,13 @@ router.post("/login", async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        res.cookie("token",token,{
-            httpOnly:true,
-            sameSite:"strict",
-
-        }).status(200).json({success:true, message: "Login successful", token });
+        res.cookie("access_token_space", token, {
+            httpOnly: true,     // Secure, prevents JavaScript access
+            secure: false,      // Should be false on localhost (set true for HTTPS in production)
+            sameSite: "lax",    // Allow cross-site requests (change to 'none' for cross-domain)
+            path: "/",          // Ensure cookie is available throughout the site
+        }
+        ).status(200).json({success:true, message: "Login successful" });
     } catch (error) {
         res.status(500).json({success:false,message:"Trouble While Logging" ,error: error.message });
     }
@@ -87,20 +85,23 @@ router.post("/login", async (req, res) => {
 
 // Middleware to check token
 const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ success: false, message: "Unauthorized. No token provided." });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Store decoded user data in request object for later use
-    next(); // Proceed to the next middleware or route handler
-  } catch (error) {
-    return res.status(401).json({ success: false, message: "Unauthorized. Invalid or expired token." });
-  }
-};
+    
+    const token = req.cookies?.access_token_space; // Extract from cookies
+    console.log(token);
+    
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Unauthorized. No token provided." });
+    }
+  
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded; // Store user data in req.user
+      next(); // Proceed to next middleware
+    } catch (error) {
+      return res.status(401).json({ success: false, message: "Unauthorized. Invalid or expired token." });
+    }
+  };
+  
 
 // Use the middleware in your route
 router.get("/", verifyToken, async (req, res) => {
@@ -112,8 +113,22 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
-
-
+router.get("/protected/profile", verifyToken, async (req, res) => {
+    try {
+      // ✅ Fetch user using email stored in JWT token
+      const user = await User.findOne({ email: req.user.email }).select("-password"); // Exclude password
+        console.log(user);
+        
+      if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+  
+      res.status(200).json({ success: true, user });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  });
+  
 router.post("/Form/BookingSession",verifyToken, async (req, res) => {
     const { fullName, email, phoneNumber, experienceLevel, preferredDate, preferredTime, learningGoals, sessionMode } = req.body;
 
@@ -142,8 +157,15 @@ router.post("/Form/BookingSession",verifyToken, async (req, res) => {
     }
 });
 
-
-
+router.post("/logout", (req, res) => {
+    try {
+      res.clearCookie("access_token_space", { httpOnly: true, secure: true, sameSite: "strict" }); // Clear auth cookie
+      return res.status(200).json({ message: "Logout successful" });
+    } catch (error) {
+      console.error("Logout Error:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
 
 
 module.exports = router;
