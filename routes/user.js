@@ -73,8 +73,8 @@ router.post("/login", async (req, res) => {
         const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1h" });
         res.cookie("access_token_space", token, {
             httpOnly: true,     // Secure, prevents JavaScript access
-            secure: false,      // Should be false on localhost (set true for HTTPS in production)
-            sameSite: "lax",    // Allow cross-site requests (change to 'none' for cross-domain)
+            secure: true,      // Should be false on localhost (set true for HTTPS in production)
+            sameSite: "none",    // Allow cross-site requests (change to 'none' for cross-domain)
             path: "/",          // Ensure cookie is available throughout the site
         }
         ).status(200).json({success:true, message: "Login successful" });
