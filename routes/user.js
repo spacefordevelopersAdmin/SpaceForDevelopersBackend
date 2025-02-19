@@ -116,8 +116,11 @@ router.get("/", verifyToken, async (req, res) => {
 router.get("/protected/profile", verifyToken, async (req, res) => {
     try {
       // ✅ Fetch user using email stored in JWT token
+      console.log("mail",req.user.email);
+      
       const user = await User.findOne({ email: req.user.email }).select("-password"); // Exclude password
-        console.log(user);
+
+        console.log("user",user);
         
       if (!user) {
         return res.status(404).json({ success: false, message: "User not found" });
@@ -129,33 +132,7 @@ router.get("/protected/profile", verifyToken, async (req, res) => {
     }
   });
   
-router.post("/Form/BookingSession",verifyToken, async (req, res) => {
-    const { fullName, email, phoneNumber, experienceLevel, preferredDate, preferredTime, learningGoals, sessionMode } = req.body;
 
-    if (!fullName || !email || !phoneNumber || !experienceLevel || !preferredDate || !preferredTime || !learningGoals || !sessionMode) {
-        return res.status(400).json({ error: "All fields are required" });
-    }
-
-    try {
-        const formData = {
-            fullName,
-            email,
-            phoneNumber,
-            experienceLevel,
-            preferredDate,
-            preferredTime,
-            learningGoals,
-            sessionMode
-        };
-
-        await writeToGoogleSheets(formData);
-        
-        return res.json({ success: "Your booking has been recorded!" });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "Something went wrong", err: error });
-    }
-});
 
 router.post("/logout", (req, res) => {
     try {
