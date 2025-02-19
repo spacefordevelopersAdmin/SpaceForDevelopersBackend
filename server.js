@@ -11,6 +11,7 @@ mongoose.connect(process.env.MONGO_URI).then(()=>console.log("DB connected")).ca
 const allowedOrigins = [
   "http://localhost:3000",
   "https://www.spacefordevelopers.in",
+  "https://spacefordevelopersbackend-production.up.railway.app"
 ];
 
 app.use(cors({
