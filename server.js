@@ -2,11 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const userRouter=require("./routes/user")
+require("dotenv").config();
 
 const app=express();
 const PORT=9000;
 
-mongoose.connect("mongodb://localhost:27017/").then(()=>console.log("DB connected")).catch((err)=>console.log(err));
+mongoose.connect(process.env.MONGO_URI).then(()=>console.log("DB connected")).catch((err)=>console.log(err));
 const allowedOrigins = [
   "http://localhost:3000",
   "https://www.spacefordevelopers.in",
