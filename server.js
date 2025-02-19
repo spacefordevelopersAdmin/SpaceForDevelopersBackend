@@ -18,9 +18,13 @@ const allowedOrigins = [
 app.use(cookieParser());
 app.use(cors({
   origin: function (origin, callback) {
+    console.log("Request Origin:", origin); // Log the requesting origin
+
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error("Blocked by CORS:", origin); // Log blocked origin
+
       callback(new Error("Not allowed by CORS"));
     }
   },
