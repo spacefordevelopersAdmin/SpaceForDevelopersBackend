@@ -4,14 +4,24 @@ const mongoose = require('mongoose');
 const userRouter=require("./routes/user")
 
 const app=express();
-const PORT=8000;
+const PORT=9000;
 
 mongoose.connect("mongodb://localhost:27017/").then(()=>console.log("DB connected")).catch((err)=>console.log(err));
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://www.spacefordevelopers.in",
+];
 
 app.use(cors({
-    origin: "http://localhost:3000", // Frontend URL
-    credentials: true, // Allows sending cookies
-  }));
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 
 app.use(express.urlencoded({extended:false}));
 app.use(express.json());  

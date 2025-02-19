@@ -3,53 +3,21 @@ const router = express.Router();
 const User = require("../model/user"); // Ensure correct import path
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { GoogleSpreadsheet } = require("google-spreadsheet");
-const { JWT, GoogleAuth } = require("google-auth-library");
-const { google } = require('googleapis');
-const fs=require('fs')
-const credentials = JSON.parse(Buffer.from(process.env.GOOGLE_CREDENTIALS, "base64").toString("utf8"));
-
-// const credentials = JSON.parse(fs.readFileSync("service-account.json", "utf8")); //run this in dev mode
-
-const auth = new GoogleAuth({
-  credentials,
-  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-});
-
-const sheets = google.sheets({ version: "v4", auth });
-
-async function writeToGoogleSheets(name, email, message) {
-    try {
-        const auth = new JWT({
-            email: credentials.client_email,
-            key: credentials.private_key,
-            scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-        });
-  
-        const doc = new GoogleSpreadsheet(process.env.SPREADSHEET_ID, auth);
-        await doc.loadInfo();
-        const sheet = doc.sheetsByIndex[0]; // First sheet
-  
-        // Ensure headers are set
-        const headers = ["Name", "Email", "Message"];
-        await sheet.setHeaderRow(headers);
-  
-        // Add new row with contact details
-        await sheet.addRow({ Name: name, Email: email, Message: message });
-  
-        console.log("Contact details added to Google Sheets");
-    } catch (error) {
-        console.error("Error writing to Google Sheets:", error);
-    }
-}
-
 require("dotenv").config();
+const {sendEmail} =require('../Util/Email.js')
 
 // ✅ Route to register a new user
-router.post("/createUser", async (req, res) => {
-    const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
+router.post("/signup", async (req, res) => {
+    const formData = req.body;
+    const {username,email,password}=formData;    
+    console.log(formData);
+    console.log(username);
+    console.log(email);
+    console.log(password);
+    
+    
+    
+    if (!username || !email || !password) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
@@ -66,11 +34,13 @@ router.post("/createUser", async (req, res) => {
 
         // Create a new user with hashed password
         const newUser = await User.create({
-            name,
+            name:username,
             email,
             password: hashedPassword,
         });
-
+        
+        await sendEmail(email,username) 
+        
         res.status(201).json({success:true, message: "User created successfully", user: newUser });
     } catch (error) {
         res.status(500).json({success:false,message:'Not able to signup', error: error.message });
@@ -79,14 +49,17 @@ router.post("/createUser", async (req, res) => {
 
 // ✅ Route for user login
 router.post("/login", async (req, res) => {
-    const { email, password } = req.body;
+    const formData = req.body;
 
+    const {email,password}=formData;
+    // console.log(formData);
+    
     if (!email || !password) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
     try {
-        // Find the user by email
+        
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ error: "Invalid email or password" });
@@ -94,13 +67,14 @@ router.post("/login", async (req, res) => {
 
         // Compare the provided password with the hashed password
         const isMatch = await bcrypt.compare(password, user.password);
+       
+        
         if (!isMatch) {
             return res.status(400).json({ error: "Invalid email or password" });
         }
 
         // Generate JWT token
         const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
         res.cookie("token",token,{
             httpOnly:true,
             sameSite:"strict",
@@ -111,35 +85,64 @@ router.post("/login", async (req, res) => {
     }
 });
 
-// ✅ Route to get all users
-router.get("/", async (req, res) => {
-    try {
-        const users = await User.find();
-        res.status(200).json({success:true,message:users});
-    } catch (error) {
-        res.status(500).json({success:false, error: error.message });
-    }
+// Middleware to check token
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Unauthorized. No token provided." });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // Store decoded user data in request object for later use
+    next(); // Proceed to the next middleware or route handler
+  } catch (error) {
+    return res.status(401).json({ success: false, message: "Unauthorized. Invalid or expired token." });
+  }
+};
+
+// Use the middleware in your route
+router.get("/", verifyToken, async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json({ success: true, message: users });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 
-router.post("/contact", async (req, res) => {
-    const { name, email, message } = req.body;
-    console.log("eriting");
 
-    if (!name || !email || !message) {
+router.post("/Form/BookingSession",verifyToken, async (req, res) => {
+    const { fullName, email, phoneNumber, experienceLevel, preferredDate, preferredTime, learningGoals, sessionMode } = req.body;
+
+    if (!fullName || !email || !phoneNumber || !experienceLevel || !preferredDate || !preferredTime || !learningGoals || !sessionMode) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
     try {
+        const formData = {
+            fullName,
+            email,
+            phoneNumber,
+            experienceLevel,
+            preferredDate,
+            preferredTime,
+            learningGoals,
+            sessionMode
+        };
 
-        await writeToGoogleSheets(name, email, message);        
-        return res.json({ success: "Your message has been recorded!" });
+        await writeToGoogleSheets(formData);
+        
+        return res.json({ success: "Your booking has been recorded!" });
     } catch (error) {
         console.log(error);
-        
-        return res.status(500).json({ error: "Something went wrong",err:error });
+        return res.status(500).json({ error: "Something went wrong", err: error });
     }
 });
+
+
 
 
 
