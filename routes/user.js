@@ -71,6 +71,8 @@ router.post("/login", async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        console.log("hey logged in ");
+        
         res.cookie("access_token_space", token, {
             httpOnly: true,     // Secure, prevents JavaScript access
             secure: true,      // Should be false on localhost (set true for HTTPS in production)
