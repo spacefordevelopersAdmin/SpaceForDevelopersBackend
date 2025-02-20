@@ -85,13 +85,7 @@ router.post("/login", async (req, res) => {
 
 // Middleware to check token
 const verifyToken = (req, res, next) => {
-    console.log(req.cookie);
-    console.log(req.cookies);
-    
-    
     const token = req.cookies?.access_token_space; // Extract from cookies
-    console.log(token);
-    
     if (!token) {
       return res.status(401).json({ success: false, message: "Unauthorized. No token provided." });
     }
@@ -118,7 +112,6 @@ router.get("/", verifyToken, async (req, res) => {
 
 router.get("/protected/profile", verifyToken, async (req, res) => {
     try {
-      // ✅ Fetch user using email stored in JWT token
       console.log("mail",req.user.email);
       
       const user = await User.findOne({ email: req.user.email }).select("-password"); // Exclude password
