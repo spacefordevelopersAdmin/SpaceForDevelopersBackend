@@ -71,8 +71,6 @@ router.post("/login", async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        console.log("hey logged in ");
-        
         res.cookie("access_token_space", token, {
             httpOnly: true,     // Secure, prevents JavaScript access
             secure: true,      // Should be false on localhost (set true for HTTPS in production)
@@ -138,7 +136,9 @@ router.get("/protected/profile", verifyToken, async (req, res) => {
 
 router.post("/logout", (req, res) => {
     try {
-      res.clearCookie("access_token_space", { httpOnly: true, secure: true, sameSite: "strict" }); // Clear auth cookie
+      res.clearCookie("access_token_space", { httpOnly: true, secure: true, sameSite: "none" ,path:'/'}); // Clear auth cookie
+      console.log("cookies delted");
+      
       return res.status(200).json({ message: "Logout successful" });
     } catch (error) {
       console.error("Logout Error:", error);
