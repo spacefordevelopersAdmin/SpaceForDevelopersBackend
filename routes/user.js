@@ -85,6 +85,9 @@ router.post("/login", async (req, res) => {
 
 // Middleware to check token
 const verifyToken = (req, res, next) => {
+    console.log(req.cookie);
+    console.log(req.cookies);
+    
     
     const token = req.cookies?.access_token_space; // Extract from cookies
     console.log(token);
