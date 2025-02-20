@@ -12,8 +12,6 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://www.spacefordevelopers.in",
   "https://spacefordevelopersbackend-production.up.railway.app",
-  "https://space-for-developers-frontend-a17jr0md6.vercel.app",
-  "https://space-for-developers-frontend-6pw4zuu56.vercel.app"
 ];
 
 

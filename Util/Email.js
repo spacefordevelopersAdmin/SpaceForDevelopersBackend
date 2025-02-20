@@ -11,7 +11,7 @@ async function sendEmail(receiverAddress, userName) {
     const emailHtml = `
   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
     <div style="text-align: center; padding: 10px;">
-      <img src="https://wwww.spacefordevelopers.in/LOGO2.jpg" alt="Space For Developers" style="width: 150px;"/>
+      <img src="https://res.cloudinary.com/diht8xvzr/image/upload/SD_weroup.jpg" alt="Space For Developers" style="width: 150px;"/>
     </div>
     
     <h2 style="color: #333; text-align: center;">Welcome to Space For Developers, ${userName}!</h2>
