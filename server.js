@@ -109,7 +109,14 @@ app.use(
       mongoUrl: process.env.MONGO_URI, // Store sessions in MongoDB
       collectionName: "sessions",
     }),
- 
+    
+    cookie: {
+      httpOnly: true,
+      secure: true, // ✅ Secure in production (HTTPS)
+      sameSite:  "none" , // ✅ Cross-site in production, safer in dev
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+    },
+
   })
 );
 
