@@ -97,6 +97,7 @@ passport.deserializeUser(async (id, done) => {
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+console.log(process.env.NODE_ENV==='production');
 
 
 app.use(
