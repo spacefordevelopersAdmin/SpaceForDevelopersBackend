@@ -12,7 +12,7 @@ const User = require("./model/user");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const app = express();
-const PORT = 9000;
+const PORT = process.env.PORT || 9000;
 
 // ✅ Connect to MongoDB
 mongoose
