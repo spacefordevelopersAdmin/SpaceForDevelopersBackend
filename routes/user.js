@@ -7,6 +7,7 @@ const { sendEmail } = require("../Util/Email.js");
 const passport = require("passport");
 
 const requireAuth = (req, res, next) => {
+  console.log("checking",req.session);
   
   if (!req.session.user) {
     return res.status(401).json({ success: false, message: "Unauthorized. Please log in." });
@@ -72,6 +73,7 @@ router.post("/login", async (req, res) => {
     // console.log("id",req.session.id);
         
     req.session.user = {
+      id:user._id,
       email: user.email,
       role:user.role
     };
@@ -81,6 +83,8 @@ router.post("/login", async (req, res) => {
         console.error("Error saving session:", err);
         return res.status(500).json({success:false, message: "Session save failed"});
       }
+      console.log("loggedf");
+      
       res.status(200).json({ success: true, message: "Login successful" ,user:req.session.user});
     });
 
