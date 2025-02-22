@@ -4,7 +4,7 @@ const { Resend } = require("resend");
 const DOMAIN_EMAIL = "noreply@spacefordevelopers.in";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-async function sendEmail(receiverAddress, userName) {
+async function sendEmail(receiverAddress, userName,phoneNumber,label) {
   try {
     console.log("Sending email...");
 
@@ -95,7 +95,7 @@ async function sendEmail(receiverAddress, userName) {
               <p>
                 🌐 <a href="https://www.spacefordevelopers.in" style="color: #007bff; text-decoration: none;">Website</a> |
                 🔗 <a href="https://www.linkedin.com/in/siddhantsharma001" style="color: #007bff; text-decoration: none;">LinkedIn</a> |
-                📩 <a href="mailto:spacefordevelopers@gmail.com" style="color: #007bff; text-decoration: none;">Support Email</a>
+                📩 <a href="mailto:support@spacefordevelopers.in" style="color: #007bff; text-decoration: none;">Support Email</a>
               </p>
             </td>
           </tr>
@@ -117,12 +117,57 @@ async function sendEmail(receiverAddress, userName) {
 </html>
 `;
 
+    const bookingSessionHtml=`<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Booking Confirmation</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+    <table role="presentation" style="width: 100%; max-width: 600px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+        <tr>
+            <td style="text-align: center; padding: 10px 0; color: #333;">
+                <h2>Session Booking Confirmation</h2>
+            </td>
+        </tr>
+        <tr>
+            <td style="font-size: 16px; color: #555; line-height: 1.6; padding: 10px;">
+                <p>Dear <strong>${userName}</strong>,</p>
+                <p>Thank you for booking a session with <strong>Space for Developers</strong>! 🚀</p>
+                <p>Our team will be reaching out to you shortly via your provided <strong>${receiverAddress}</strong> or <strong>${phoneNumber}</strong> to finalize the details.</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="color: #d9534f; font-weight: bold; font-size: 18px; padding: 15px 10px;">
+                ⚠️ Important Notice: Beware of Scammers
+            </td>
+        </tr>
+        <tr>
+            <td style="font-size: 16px; color: #555; line-height: 1.6; padding: 10px;">
+                <p>Official communication will only come from:</p>
+                <ul>
+                    <li>✅ Email: <strong><a href="mailto:support@spacefordevelopers.in" style="color: #007bff; text-decoration: none;">support@spacefordevelopers.in</a></strong></li>
+                    <li>✅ Phone: <strong>8595926617</strong></li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td style="font-size: 14px; text-align: center; color: #777; padding-top: 20px;">
+                &copy; 2025 Space for Developers. All rights reserved.
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+`
+    const HTML= label==="signup"?emailHtml:bookingSessionHtml;
 
     const { data, error } = await resend.emails.send({
       from: `Space For Developers <${DOMAIN_EMAIL}>`,
       to: [receiverAddress],
-      subject: "Welcome to Space For Developers!",
-      html: emailHtml,
+      subject: label==="signup"?"Welcome to Space For Developers!":"Your Session with us has been Booked!",
+      html: HTML,
     });
 
     if (error) {
