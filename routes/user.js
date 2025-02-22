@@ -72,8 +72,16 @@ router.post("/login", async (req, res) => {
       email: user.email,
       role:user.role
     };
-    
-    res.status(200).json({ success: true, message: "Login successful", user: req.session.user });
+    await req.session.save();
+    res
+      .status(200)
+      .cookie("connect.sid", req.sessionID, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 1000 * 60 * 60 * 24,
+      })
+      .json({ success: true, message: "Login successful", user: req.session.user });
   } catch (error) {
     res.status(500).json({ success: false, message: "Trouble While Logging", error: error.message });
   }
