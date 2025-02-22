@@ -7,12 +7,11 @@ const bodyParser = require("body-parser");
 require("dotenv").config();
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
-const passport = require("passport");
-const User = require("./model/user");
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const passport = require("./config/passport");
 
 const app = express();
 const PORT = 9000;
+console.log(process.env.NODE_ENV==='production');
 
 // ✅ Connect to MongoDB
 mongoose
@@ -28,8 +27,6 @@ const allowedOrigins = [
 
 app.use(cookieParser());
 app.set('trust proxy', 1); // Trust first proxy
-
-// ✅ CORS Configuration (for frontend-backend communication)
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -46,61 +43,9 @@ app.use(
   })
 );
 
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: `${process.env.BACKEND_URL}/api/v1/user/auth/google/callback`
-},
-async (accessToken, refreshToken, profile, done) => {
-  try {
-
-    let user = await User.findOne({ googleId: profile.id });
-
-    if (!user) {
-      user = await User.findOne({ email: profile.emails[0].value });  //check if google mail exist in db 
-
-      if (user) {
-        // If user exists via email but not linked with Google, update it
-        user.googleId = profile.id;
-        await user.save();
-      } else {
-        // Create new user
-        user = new User({
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          googleId: profile.id,
-          role: "user",
-          profilePicture: profile.photos?.[0]?.value || null, // Optional: Store profile pic
-        });
-        await user.save();
-      }
-    }
-
-    return done(null, user);
-  } catch (err) {
-    return done(err, null);
-  }
-}
-));
-
-passport.serializeUser((user, done) => {
-  done(null, user.id); // Save user ID in session
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-});
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-console.log(process.env.NODE_ENV==='production');
-
-
 app.use(
   session({
     secret: process.env.SESSION_SECRET, // Store this in .env
@@ -120,6 +65,11 @@ app.use(
 
   })
 );
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 app.use("/api/v1/user", userRouter);
 
