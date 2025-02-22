@@ -5,6 +5,9 @@ const bcrypt = require("bcryptjs");
 require("dotenv").config();
 const { sendEmail } = require("../Util/Email.js");
 const passport = require('passport');
+const { verifyOtpByEmail, verifyOtp } = require("../Util/verifyOtp.js");
+const { sendOtpByEmail } = require("../Util/sendOtp.js");
+
 
 const requireAuth = (req, res, next) => {
   console.log("Session Data:", req.session);
@@ -111,8 +114,6 @@ router.get('/auth/google/callback',
   }
 );
 
-
-
 router.post("/logout", (req, res) => {
   try {
     req.logout((err) => {
@@ -133,5 +134,10 @@ router.post("/logout", (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+router.post("/send-otp", sendOtpByEmail);
+
+router.post("/verify-otp", verifyOtp);
+
 
 module.exports = router;

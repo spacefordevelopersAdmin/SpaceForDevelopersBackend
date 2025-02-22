@@ -70,7 +70,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 app.use("/api/v1/user", userRouter);
 
 app.listen(PORT, () => {
