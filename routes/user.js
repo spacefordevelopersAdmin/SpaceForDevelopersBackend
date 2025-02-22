@@ -7,6 +7,7 @@ const { sendEmail } = require("../Util/Email.js");
 const passport = require("passport");
 
 const requireAuth = (req, res, next) => {
+  
   if (!req.session.user) {
     return res.status(401).json({ success: false, message: "Unauthorized. Please log in." });
   }
@@ -66,22 +67,24 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Invalid email or password" });
     }
 
-    // ✅ Save user session
+    // // ✅ Save user session
+    // console.log(req.session);
+    // console.log("id",req.session.id);
+        
     req.session.user = {
-      id: user._id,
       email: user.email,
       role:user.role
     };
-    await req.session.save();
-    res
-      .status(200)
-      .cookie("connect.sid", req.sessionID, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 1000 * 60 * 60 * 24,
-      })
-      .json({ success: true, message: "Login successful", user: req.session.user });
+    
+    req.session.save((err) => {
+      if (err) {
+        console.error("Error saving session:", err);
+        return res.status(500).json({success:false, message: "Session save failed"});
+      }
+      res.status(200).json({ success: true, message: "Login successful" ,user:req.session.user});
+    });
+
+
   } catch (error) {
     res.status(500).json({ success: false, message: "Trouble While Logging", error: error.message });
   }
@@ -122,7 +125,6 @@ router.get("/auth/google/callback",
   passport.authenticate("google",{failureRedirect:"/signup"}),
   (req,res)=>{
     req.session.user={
-      id:req.user._id,
       email:req.user.email,
       role:req.user.role
     }
