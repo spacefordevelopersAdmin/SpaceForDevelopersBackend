@@ -41,9 +41,12 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // ✅ Allows cookies & sessions to be sent
+    credentials: true, // Allow cookies and session credentials to be sent
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all necessary methods
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Allow necessary headers
   })
 );
+app.options('*', cors());  // Preflight request handling
 
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
