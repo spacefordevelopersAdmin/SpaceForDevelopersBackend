@@ -112,8 +112,8 @@ app.use(
     
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // ✅ Secure in production (HTTPS)
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // ✅ Cross-site in production, safer in dev
+      secure: true, // ✅ Secure in production (HTTPS)
+      sameSite:  "none" , // ✅ Cross-site in production, safer in dev
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
 
