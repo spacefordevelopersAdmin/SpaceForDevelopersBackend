@@ -68,31 +68,35 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Invalid email or password" });
     }
 
-    // // ✅ Save user session
-    // console.log(req.session);
-    // console.log("id",req.session.id);
-        
+    // ✅ Save user session
     req.session.user = {
-      id:user._id,
+      id: user._id,
       email: user.email,
-      role:user.role
+      role: user.role
     };
-    
+
     req.session.save((err) => {
       if (err) {
         console.error("Error saving session:", err);
-        return res.status(500).json({success:false, message: "Session save failed"});
+        return res.status(500).json({ success: false, message: "Session save failed" });
       }
-      console.log("loggedf");
-      
-      res.status(200).json({ success: true, message: "Login successful" ,user:req.session.user});
-    });
 
+      // ✅ Manually set the session cookie
+      res.cookie("connect.sid", req.session.id, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 1000 * 60 * 60 * 24 // 1 day
+      });
+
+      res.status(200).json({ success: true, message: "Login successful", user: req.session.user });
+    });
 
   } catch (error) {
     res.status(500).json({ success: false, message: "Trouble While Logging", error: error.message });
   }
 });
+
 
 router.get("/protected/profile", requireAuth, async (req, res) => {
   try {
