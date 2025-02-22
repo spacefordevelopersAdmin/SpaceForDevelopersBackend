@@ -12,7 +12,7 @@ const User = require("./model/user");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const app = express();
-const PORT = process.env.PORT || 9000;
+const PORT = 9000;
 
 // ✅ Connect to MongoDB
 mongoose
@@ -27,6 +27,7 @@ const allowedOrigins = [
 ];
 
 app.use(cookieParser());
+app.set('trust proxy', 1); // Trust first proxy
 
 // ✅ CORS Configuration (for frontend-backend communication)
 app.use(
@@ -41,12 +42,9 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // Allow cookies and session credentials to be sent
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all necessary methods
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Allow necessary headers
+    credentials: true, // ✅ Allows cookies & sessions to be sent
   })
 );
-app.options('*', cors());  // Preflight request handling
 
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
