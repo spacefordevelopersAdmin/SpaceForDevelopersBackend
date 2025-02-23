@@ -60,7 +60,7 @@ passport.use(
 
 // Serialize user (store these details in session)
 passport.serializeUser((user, done) => {
-  // console.log(user);
+  console.log(user);
   
   done(null, { id: user._id, email: user.email, role: user.role ,name:user.name});
 });

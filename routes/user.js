@@ -5,13 +5,15 @@ const bcrypt = require("bcryptjs");
 require("dotenv").config();
 const { sendEmail } = require("../Util/Email.js");
 const passport = require('passport');
-const { verifyOtpByEmail, verifyOtp } = require("../Util/verifyOtp.js");
+const {  verifyOtp } = require("../Util/verifyOtp.js");
 const { sendOtpByEmail } = require("../Util/sendOtp.js");
 
 
 const requireAuth = (req, res, next) => {
   console.log("Session Data:", req.session);
-
+  console.log(req.user);
+  console.log(req.isAuthenticated());
+  
   if (req.isAuthenticated() && req.user) {
     return next(); // User is authenticated, proceed
   }
@@ -72,9 +74,9 @@ router.post('/login', (req, res, next) => {
 
 router.get("/protected/profile", requireAuth, async (req, res) => {
   try {
-    // console.log("protected",req.session);
     
-    const user=req.session.passport.user
+    const user=req.user
+    
 
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
