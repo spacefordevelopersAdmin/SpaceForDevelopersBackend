@@ -56,6 +56,7 @@ app.use(
       collectionName: "sessions",
     }),
     
+    
     cookie: {
       httpOnly: true,
       secure: true, // ✅ Secure in production (HTTPS)
