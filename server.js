@@ -11,7 +11,6 @@ const passport = require("./config/passport");
 
 const app = express();
 const PORT = 9000;
-console.log(process.env.NODE_ENV==='production');
 
 // ✅ Connect to MongoDB
 mongoose
@@ -56,11 +55,10 @@ app.use(
       collectionName: "sessions",
     }),
     
-    
     cookie: {
       httpOnly: true,
-      secure: true, // ✅ Secure in production (HTTPS)
-      sameSite:  "none" , // ✅ Cross-site in production, safer in dev
+      secure: process.env.NODE_ENV==='production'?true:false, // ✅ Secure in production (HTTPS)
+      sameSite: process.env.NODE_ENV==='production'?"none":"lax" , // ✅ Cross-site in production, safer in dev
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
 

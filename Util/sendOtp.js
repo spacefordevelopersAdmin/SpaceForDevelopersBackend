@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { Resend } = require("resend");
 
-const DOMAIN_EMAIL = "noreply@spacefordevelopers.in";
+const DOMAIN_EMAIL = "support@spacefordevelopers.in";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Temporary store (Use Redis or DB for production)
@@ -14,7 +14,6 @@ function generateOtp() {
 async function sendOtpByEmail(req, res) {
   try {
     const { email } = req.body; // Get user email
-    console.log(req.body);
 
     if (!email) {
       return res.status(400).json({ success: false, message: "Email is required" });
@@ -43,7 +42,8 @@ async function sendOtpByEmail(req, res) {
       subject: "Your One-Time Password (OTP) for Space For Developers Signup",
       html: HTML,
     });
-
+    console.log(data);
+    
     if (error) {
       console.error("Error sending email:", error);
       return res.status(500).json({ success: false, message: "Failed to send OTP" });

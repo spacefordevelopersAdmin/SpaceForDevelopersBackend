@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { Resend } = require("resend");
 
-const DOMAIN_EMAIL = "noreply@spacefordevelopers.in";
+const DOMAIN_EMAIL = "support@spacefordevelopers.in";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function sendEmail(receiverAddress, userName,phoneNumber,label) {
