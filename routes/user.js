@@ -43,7 +43,7 @@ router.post("/signup", async (req, res) => {
       password: hashedPassword,
     });
 
-    await sendEmail(email, username, "signup");
+    await sendEmail(email, username,undefined,"signup");
 
     res.status(201).json({
       success: true,

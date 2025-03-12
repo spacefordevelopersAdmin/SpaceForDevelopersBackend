@@ -62,7 +62,7 @@ async function sendEmail(receiverAddress, userName,phoneNumber,label) {
             <td>
               <h3 style="color: #333;">🛠 Get Started Now:</h3>
               <ol style="color: #555; font-size: 16px;">
-                <li>1️⃣ <strong>Access Your Dashboard</strong> – <a href="https://www.spacefordevelopers.in/signup" style="color: #007bff; text-decoration: none;">Login Here</a></li>
+                <li>1️⃣ <strong>Access Your Dashboard</strong> – <a href="https://www.spacefordevelopers.in/login" style="color: #007bff; text-decoration: none;">Login Here</a></li>
                 <li>2️⃣ <strong>Explore Courses & Resources</strong> – Check out available programs.</li>
                 <li>3️⃣ <strong>Join Our Community</strong> – Engage in discussions & collaborations. <em>(Coming Soon!)</em></li>
               </ol>
@@ -160,7 +160,8 @@ async function sendEmail(receiverAddress, userName,phoneNumber,label) {
     </table>
 </body>
 </html>
-`
+` 
+
     const HTML= label==="signup"?emailHtml:bookingSessionHtml;
 
     const { data, error } = await resend.emails.send({
@@ -175,7 +176,7 @@ async function sendEmail(receiverAddress, userName,phoneNumber,label) {
       return;
     }
 
-    console.log("Email sent successfully:", data);
+    console.log("Email sent successfully");
   } catch (error) {
     console.error("Error in sending email:", error);
   }
