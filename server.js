@@ -10,8 +10,7 @@ const MongoStore = require("connect-mongo");
 const passport = require("./config/passport");
 
 const app = express();
-const PORT = 9000;
-
+const PORT = process.env.PORT || 9000;
 // ✅ Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
@@ -19,9 +18,9 @@ mongoose
   .catch((err) => console.log(err));
 
 const allowedOrigins = [
-  "http://localhost:3000",
   "https://www.spacefordevelopers.in",
-  "https://spacefordevelopersbackend-production.up.railway.app",
+  "http://localhost:3000"
+
 ];
 
 app.use(cookieParser());
@@ -58,8 +57,10 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV==='production'?true:false, // ✅ Secure in production (HTTPS)
-      sameSite: process.env.NODE_ENV==='production'?"none":"lax" , // ✅ Cross-site in production, safer in dev
+      sameSite: process.env.NODE_ENV==='production'?"lax":"lax" , // ✅ Cross-site in production, safer in dev
       maxAge: 1000 * 60 * 60 * 24, // 1 day
+      domain: ".spacefordevelopers.in", // Makes cookie available across subdomains
+
     },
 
   })
