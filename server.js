@@ -8,8 +8,10 @@ require("dotenv").config();
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const passport = require("./config/passport");
-
+const admin = require("firebase-admin");
 const app = express();
+const path=require("path");
+
 const PORT = process.env.PORT || 9000;
 // ✅ Connect to MongoDB
 mongoose
@@ -69,6 +71,12 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+const serviceAccount = require(path.join(__dirname, "service-account.json"));
+
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 app.use("/api/v1/user", userRouter);
 

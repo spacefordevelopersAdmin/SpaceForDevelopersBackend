@@ -8,11 +8,12 @@ const passport = require('passport');
 const {  verifyOtp } = require("../Util/verifyOtp.js");
 const { sendOtpByEmail } = require("../Util/sendOtp.js");
 
+const admin=require("firebase-admin");
 
 const requireAuth = (req, res, next) => {
-  console.log("Session Data:", req.session);
-  console.log(req.user);
-  console.log(req.isAuthenticated());
+  // console.log("Session Data:", req.session);
+  // console.log(req.user);
+  // console.log(req.isAuthenticated());
   
   if (req.isAuthenticated() && req.user) {
     return next(); // User is authenticated, proceed
@@ -97,14 +98,61 @@ router.post("/confirmBookingSession", async (req, res) => {
   try {
     const { phoneNumber, email, fullName } = req.body;
 
-    await sendEmail(email, fullName, phoneNumber, "BookingSession");
-
+    // await sendEmail(email, fullName, phoneNumber, "BookingSession");
+    await sendAdminNotification(
+      "New Session Booked",
+      `A new session has been booked with ${fullName}. Contact: ${phoneNumber}. Check the Google sheets for more details.`
+    );
+    
     res.status(200).json({ success: true, message: "Email has been sent for BookingSession" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
+
+async function sendAdminNotification(title,message) {
+  try {
+    const adminsWithFcmToken = await User.find({
+      role: "admin",
+      fcm_token: { $exists: true, $ne: null },
+    });
+
+    if (!adminsWithFcmToken || adminsWithFcmToken.length === 0) {
+      console.error("No admins with FCM tokens found");
+      return;
+    }
+
+    // Extract FCM tokens into an array
+    
+    const fcmTokens = adminsWithFcmToken.map((admin) => admin.fcm_token);
+    // console.log(fcmTokens);
+    
+    // Prepare multicast message (sends to multiple tokens in one request)
+    const pushMessage = {
+      notification: {
+        title:title,
+        body: message,
+      },
+      tokens: fcmTokens, // Array of FCM tokens
+    };
+
+    // Send multicast notification
+    const response = await admin.messaging().sendEachForMulticast(pushMessage);
+    // console.log("Notifications sent successfully:", response);
+
+    // Log any failures (optional)
+    if (response.failureCount > 0) {
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          console.error(`Failed to send to ${fcmTokens[idx]}: ${resp.error}`);
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error sending notifications:", error);
+  }
+}
 
 router.get("/auth/google",passport.authenticate("google",{scope:["profile","email"] }));
 
@@ -140,6 +188,23 @@ router.post("/logout", (req, res) => {
 router.post("/send-otp", sendOtpByEmail);
 
 router.post("/verify-otp", verifyOtp);
+
+router.post("/save-fcm-token",async (req,res)=>{
+  try {
+    const { token ,email} = req.body;
+
+    if (!token) {
+      return res.status(400).json({ success: false, message: "Token is required" });
+    }
+    console.log("Received Admin FCM Token:", token);
+    const k=await User.updateOne({ role: "admin" ,email:email}, { fcm_token: token }, { upsert: true });
+    
+    res.status(200).json({ success: true, message: "Token saved successfully" });
+  } catch (error) {
+    console.error("Error saving token:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+})
 
 
 module.exports = router;
