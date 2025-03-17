@@ -71,7 +71,9 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-const serviceAccount = require(path.join(__dirname, "service-account.json"));
+const serviceAccount = process.env.NODE_ENV === 'production'
+  ? require("/etc/secrets/service-account.json") // Use secret file in Render
+  : require("./service-account.json"); // Use local file in development
 
 
 admin.initializeApp({
