@@ -98,7 +98,7 @@ router.post("/confirmBookingSession", async (req, res) => {
   try {
     const { phoneNumber, email, fullName } = req.body;
 
-    // await sendEmail(email, fullName, phoneNumber, "BookingSession");
+    await sendEmail(email, fullName, phoneNumber, "BookingSession");
     await sendAdminNotification(
       "New Session Booked",
       `A new session has been booked with ${fullName}. Contact: ${phoneNumber}. Check the Google sheets for more details.`
