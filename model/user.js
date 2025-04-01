@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema(
       unique: true,
       required: true,
     },
+    avatar:{
+      type:String,
+      required:false
+    },
     password: {
       type: String, // ✅ Optional: Only needed for email-password users
     },

@@ -29,7 +29,8 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
-    "resend": "^4.1.2"
+    "resend": "^4.1.2",
+    "twilio": "^5.5.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

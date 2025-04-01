@@ -61,7 +61,7 @@ app.use(
       secure: process.env.NODE_ENV==='production'?true:false, // ✅ Secure in production (HTTPS)
       sameSite: process.env.NODE_ENV==='production'?"lax":"lax" , // ✅ Cross-site in production, safer in dev
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-      domain: ".spacefordevelopers.in", // Makes cookie available across subdomains
+      // domain: ".spacefordevelopers.in", // Makes cookie available across subdomains
 
     },
 
