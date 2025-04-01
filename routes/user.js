@@ -25,6 +25,172 @@ const requireAuth = (req, res, next) => {
   return res.status(401).json({ success: false, message: "Unauthorized. Please log in." });
 };
 
+router.post("/waitlist/send-email", async (req, res) => {
+  const { username, email } = req.body;
+
+  if (!username || !email) {
+    return res.status(400).json({ error: "Username and email are required." });
+  }
+
+  try {
+    res.status(200).json({success:true, message: "Email sent successfully!" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ success:false,error: "Failed to send email." });
+  }
+});
+
+
+
+// const sendVOSCOmail = async (recipients) => {
+//   const resend = new Resend("re_UWPxAxM5_7iWSszjD5ssz8VG25oGWdXap");
+//   const DOMAIN_EMAIL = "noreply@vosco.io";
+//   const failedEmails = []; // Array to track failed emails
+
+//   try {
+//     for (const recipient of recipients) {
+//       const { first_name, email } = recipient;
+
+//       const EMAILCONTENT = ` 
+// <!DOCTYPE html>
+// <html>
+// <head>
+//   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+//   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//   <title>Welcome to VosCo!</title>
+// </head>
+// <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #111; color: #fff;">
+//   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" align="center" bgcolor="#111">
+//     <tr>
+//       <td align="center">
+//         <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" bgcolor="#000"
+//           style="margin: 40px auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);">
+          
+//           <!-- Header -->
+//           <tr>
+//             <td align="center">
+//               <h2 style="color: #fff; font-size: 24px; margin-bottom: 10px;">Welcome to VosCo!</h2>
+//               <p style="color: #ccc; font-size: 16px; margin-top: 0;">We're thrilled to have you here.</p>
+//             </td>
+//           </tr>
+
+//           <!-- Message Content -->
+//           <tr>
+//             <td>
+//               <p style="color: #ddd; font-size: 16px; line-height: 1.6;">Hey <strong>${first_name}</strong>,</p>
+//               <p style="color: #ddd; font-size: 16px; line-height: 1.6;">I saw you signed up for the VosCo waiting list—awesome! 🎉</p>
+//               <p style="color: #ddd; font-size: 16px; line-height: 1.6;">
+//                 If you'd like to be a beta user, meaning early access before anyone else, special perks, and direct contact with me and the team, just hit the button below:
+//               </p>
+//               <p align="center">
+//                 <a href="https://www.instagram.com/renard.wb/" 
+//                    style="display: inline-block; background-color: #090c14; color: #dc2626; border: 1px solid #888; padding: 12px 20px; 
+//                    font-size: 16px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+//                    DM me on Instagram
+//                 </a>
+//               </p>
+
+//               <p style="color: #ddd; font-size: 16px; line-height: 1.6;">
+//                 And if not, no worries! You'll still be able to join once we go live, and you'll be the first to know.  
+//               </p>
+//               <p style="color: #ddd; font-size: 16px; line-height: 1.6;">
+//                 No spam from us—this is the only email you'll get until we're live. Just a quick heads-up when it's time.  
+//               </p>
+//               <p style="color: #fff; font-size: 16px; font-weight: bold;">Thanks for being part of VosCo! 🚀</p>
+//             </td>
+//           </tr>
+
+//           <!-- Footer -->
+//           <tr>
+//             <td align="center" style="padding-top: 20px; border-top: 1px solid #333;">
+//               <p style="font-size: 14px; color: #aaa;margin-bottom: 4px;"><strong>See you soon,</strong><br>
+//                 <span style="color: #fff; font-weight: bold;">Renard & The VosCo Team</span></p>
+//             </td>
+//           </tr>
+
+//         </table>
+//       </td>
+//     </tr>
+//   </table>
+// </body>
+// </html>
+// `;
+
+//       const { error } = await resend.emails.send({
+//         from: `VosCo Team <${DOMAIN_EMAIL}>`,
+//         to: [email],
+//         subject: "You're on the VosCo Waiting List! 🚀",
+//         html: EMAILCONTENT,
+//       });
+
+//       if (error) {
+//         console.error(`Error sending email to ${email}:`, error);
+//         failedEmails.push({ email, error: error.message }); // Track failed emails
+//       }
+//     }
+
+//     return { success: true, message: "Emails processed", failedEmails };
+//   } catch (error) {
+//     console.error("Error in sending bulk emails:", error);
+//     throw error;
+//   }
+// };
+
+// // Endpoint to send bulk emails
+// router.post("/send-bulk-emails", async (req, res) => {
+//   try {
+//     // Hardcoded list of recipients
+//     const recipients = [
+//       { first_name: "test", email: "renardwolfensberger@gmail.com" },
+//       // { first_name: "renard", email: "renardwolfensberger@icloud.com" },
+//       // { first_name: "Rico", email: "rico.klinger05@gmail.com" },
+//       // { first_name: "Louis", email: "louisdelaisse@gmail.com" },
+//       // { first_name: "Jaxson", email: "jaxsonknight6@gmail.com" },
+//       // { first_name: "Suleiman", email: "mwaijegakelvin@gmail.com" },
+//       // { first_name: "Ilias", email: "iliasnikolaou212@gmail.com" },
+//       // { first_name: "Enric", email: "evilabaiget@gmail.com" },
+//       // { first_name: "test", email: "renardwolfensberger@gmail.com" },
+//       // { first_name: "Enzo", email: "enz.ducros@gmail.com" },
+//       // { first_name: "Ilija", email: "business.ilijarado@gmail.com" },
+//       // { first_name: "hdiuuhv", email: "gueid234@gmail.com" },
+//       // { first_name: "renard", email: "renardwolfensberger@icloud.com" },
+//       // { first_name: "Rishul", email: "rishul@reachroot.xyz" },
+//       // { first_name: "Kirthik", email: "kirthik200324@gmail.com" },
+//       // { first_name: "ebeds", email: "heroenes612@gmail.com" },
+//       // { first_name: "tanvi", email: "tanvi12.bansal@gmail.com" },
+//       // { first_name: "Eduardo", email: "eserranor98@gmail.com" },
+//       // { first_name: "Itamar", email: "itamartitievsky2006@gmail.com" },
+//       // { first_name: "Simaq", email: "msimaqshani79@gmail.com" },
+//       // { first_name: "yash", email: "contactjustyash8@gmail.com" },
+//       // { first_name: "Vyankatesh", email: "vyankatesharu1@gmail.com" },
+//       // { first_name: "gfd", email: "zhokaogurca@gmail.com" },
+//       // { first_name: "Minuki", email: "arktmz3373@gmail.com" },
+//       // { first_name: "Matylek", email: "galekkarmanov@gmail.com" },
+//       // { first_name: "Minh", email: "ductuancb0313@gmail.com" },
+//       // { first_name: "Jeroen", email: "jeroenvanstap@gmail.com" },
+//       // { first_name: "Mays", email: "maysmayank@gmail.com" },
+//       // { first_name: "Veljko", email: "veljkoppantic@gmail.com" }
+//     ];
+    
+
+//     const result = await sendVOSCOmail(recipients);
+
+//     res.status(200).json({ 
+//       success: true, 
+//       message: "Bulk emails processed",
+//       failedEmails: result.failedEmails.length > 0 ? result.failedEmails : "All emails sent successfully"
+//     });
+
+//   } catch (error) {
+//     console.error("Error in bulk email sending:", error);
+//     res.status(500).json({ 
+//       success: false, 
+//       message: "Failed to process bulk emails", 
+//       error: error.message 
+//     });
+//   }
+// });
+
 
 router.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
